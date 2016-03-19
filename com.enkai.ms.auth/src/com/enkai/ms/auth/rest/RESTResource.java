@@ -33,18 +33,28 @@ public class RESTResource implements RESTResourceProxy {
         @FormParam( "username" ) String username,
         @FormParam( "password" ) String password ) {
 
-        Authenticator demoAuthenticator = Authenticator.getInstance();
+        Authenticator restAuthenticator = Authenticator.getInstance();
         String serviceKey = httpHeaders.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
 
         try {
-            String authToken = demoAuthenticator.login( serviceKey, username, password );
-
+            String authToken = restAuthenticator.login( serviceKey, username, password );
+            
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+            
+            if (authToken.equals("0")) {
+            	jsonObjBuilder.add( "message", "username or password invalid" );
+            	JsonObject jsonObj = jsonObjBuilder.build();
+                return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
+            } else if (authToken.equals("3")) {
+            	jsonObjBuilder.add( "message", "password expired" );
+            	JsonObject jsonObj = jsonObjBuilder.build();
+                return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
+            }
+            
             jsonObjBuilder.add( "auth_token", authToken );
             JsonObject jsonObj = jsonObjBuilder.build();
-
             return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
-
+            
         } catch ( final LoginException ex ) {
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             jsonObjBuilder.add( "message", "Problem matching service key, username and password" );

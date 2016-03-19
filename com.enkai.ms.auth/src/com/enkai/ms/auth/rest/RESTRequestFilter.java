@@ -29,10 +29,10 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         }
 
         // Then check is the service key exists and is valid.
-        Authenticator demoAuthenticator = Authenticator.getInstance();
+        Authenticator restAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
 
-        if ( !demoAuthenticator.isServiceKeyValid( serviceKey ) ) {
+        if ( !restAuthenticator.isServiceKeyValid( serviceKey ) ) {
             // Kick anyone without a valid service key
             requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
 
@@ -44,7 +44,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
             String authToken = requestCtx.getHeaderString( HTTPHeaderNames.AUTH_TOKEN );
 
             // if it isn't valid, just kick them out.
-            if ( !demoAuthenticator.isAuthTokenValid( serviceKey, authToken ) ) {
+            if ( !restAuthenticator.isAuthTokenValid( serviceKey, authToken ) ) {
                 requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
             }
         }
