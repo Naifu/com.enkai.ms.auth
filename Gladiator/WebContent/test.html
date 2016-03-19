@@ -1,0 +1,46 @@
+<html>
+   <head>
+   	<title>REST Authentication Tester</title>
+      <meta charset="UTF-8">
+	</head>
+
+	<body>
+		<div>
+			<h1>Test Form</h1>
+			<form action="#">
+				<input type="button" onclick="test()" value="Test this">
+    		</form>
+		</div>
+	
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		
+		<script type="text/javascript">
+			function test () {
+				var $ = jQuery.noConflict();
+				
+				$.ajaxSetup( { async: false } );
+				
+				$.ajax( {
+		            cache			: false,
+		            crossDomain	: true,
+		            headers		: {
+		            	"service_key"	: "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+		            	"auth_token"	: sessionStorage.auth_token
+		            },
+		            dataType		: "json",
+	               url			: "//localhost:8080/com.enkai.ms.auth/rest/enkai-resource/demo-get-method/",
+	               type			: "GET",
+	               success		: function( jsonObj, textStatus, xhr ) {
+							var htmlContent = $( "#logMsgDiv" ).html( ) + "<p>After login, execute demoteGetMethod with the auth-token obtained. JSON Message: " + jsonObj.message + "</p>";
+	                  alert( htmlContent );
+	               },
+	               error: function( xhr, textStatus, errorThrown ) {
+	               	console.log( "HTTP Status: " + xhr.status );
+	                  console.log( "Error textStatus: " + textStatus );
+	                  console.log( "Error thrown: " + errorThrown );
+						}
+		        } );
+			} 
+		</script>
+	</body>
+</html>
