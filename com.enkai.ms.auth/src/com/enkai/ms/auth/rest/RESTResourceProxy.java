@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Local
-@Path( "enkai-resource" )
+@Path( "enkai-resource-proxy" )
 public interface RESTResourceProxy extends Serializable {
 
     @POST

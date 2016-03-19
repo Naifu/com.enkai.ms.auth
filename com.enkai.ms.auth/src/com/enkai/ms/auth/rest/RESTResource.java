@@ -19,14 +19,13 @@ import javax.ws.rs.core.Response;
 
 import com.enkai.ms.auth.intf.HTTPHeaderNames;
 
-//@Stateless( name = "RESTResource", mappedName = "ejb/RESTResource" )
+@Stateless( name = "RESTResource", mappedName = "ejb/RESTResource" )
 @Path( "enkai-resource" )
-//public class RESTResource implements RESTResourceProxy {
-public class RESTResource  {	
+public class RESTResource implements RESTResourceProxy {
 
-    //private static final long serialVersionUID = -6663599014192066936L;
+	private static final long serialVersionUID = 8428236722685616669L;
 
-    @POST
+	@POST
     @Path( "login" )
     @Produces( MediaType.APPLICATION_JSON )
     public Response login(
