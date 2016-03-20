@@ -1,6 +1,8 @@
 package com.enkai.ms.auth.rest;
 
 import java.security.GeneralSecurityException;
+import java.util.UUID;
+
 import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -19,6 +21,8 @@ import javax.ws.rs.core.Response;
 
 import com.enkai.ms.auth.intf.HTTPHeaderNames;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * REST Call Handler
  *  
@@ -31,7 +35,8 @@ import com.enkai.ms.auth.intf.HTTPHeaderNames;
 public class RESTResource implements RESTResourceProxy {
 
 	private static final long serialVersionUID = 8428236722685616669L;
-
+	static final Logger LOG = LoggerFactory.getLogger(RESTResource.class);
+	
 	/* (non-Javadoc)
 	 * @see com.enkai.ms.auth.rest.RESTResourceProxy#login(javax.ws.rs.core.HttpHeaders, java.lang.String, java.lang.String)
 	 */
@@ -42,7 +47,7 @@ public class RESTResource implements RESTResourceProxy {
         @Context HttpHeaders httpHeaders,
         @FormParam( "username" ) String username,
         @FormParam( "password" ) String password ) {
-
+		
         Authenticator restAuthenticator = Authenticator.getInstance();
         String clientKey = httpHeaders.getHeaderString( HTTPHeaderNames.CLIENT_KEY );
 
@@ -61,7 +66,7 @@ public class RESTResource implements RESTResourceProxy {
             jsonObjBuilder.add( "message", ex.getMessage() );
             JsonObject jsonObj = jsonObjBuilder.build();
 
-            return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
+            return getNoCacheResponseBuilder( Response.Status.FORBIDDEN ).entity( jsonObj.toString() ).build();
         }
     }
 
@@ -99,7 +104,31 @@ public class RESTResource implements RESTResourceProxy {
 
         return Response.status( status ).cacheControl( cc );
     }
+    
+    @GET
+	@Path("registerClient")
+	public Response registerKey() {
+		
+    	String clientKey = UUID.randomUUID().toString();
+    	
+    	Authenticator restAuthenticator = Authenticator.getInstance();
+    	restAuthenticator.registerClient(clientKey);
+    	
+		JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+        jsonObjBuilder.add( "clientKey", clientKey);
+        JsonObject jsonObj = jsonObjBuilder.build();
 
+        return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
+	}
+
+    @GET
+	@Path("authCheck")
+	public Response authCheck(
+		@Context HttpHeaders httpHeaders) {
+		
+    	return getNoCacheResponseBuilder( Response.Status.NO_CONTENT ).build();
+	}
+    
 	@GET
 	@Path("test-get-method")
 	public Response testGetMethod(

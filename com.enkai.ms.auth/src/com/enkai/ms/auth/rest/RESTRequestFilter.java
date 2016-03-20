@@ -39,13 +39,13 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         Authenticator restAuthenticator = Authenticator.getInstance();
         String clientKey = requestCtx.getHeaderString( HTTPHeaderNames.CLIENT_KEY );
 
-        if ( !restAuthenticator.isclientKeyValid( clientKey ) ) {
-            requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() ); // Client Key unbekannt => Verbindung ablehnen
-            return;
-        }
+//        if ( !restAuthenticator.isclientKeyValid( clientKey ) ) {
+//            requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() ); // Client Key unbekannt => Verbindung ablehnen
+//            return;
+//        }
 
-        // Für alle Anfragen ausser Loginversuche den Authorisierungs Token überprüfen
-        if ( !path.startsWith( "enkai-resource/login/" ) ) {
+        // Für alle Anfragen ausser Loginversuche und Client Registrierung den Authorisierungs Token überprüfen
+        if ( !path.startsWith( "enkai-resource/login/" ) && !path.startsWith( "enkai-resource/registerClient/" ) ) {
             String authToken = requestCtx.getHeaderString( HTTPHeaderNames.AUTH_TOKEN );
 
             if ( !restAuthenticator.isAuthTokenValid( clientKey, authToken ) ) {

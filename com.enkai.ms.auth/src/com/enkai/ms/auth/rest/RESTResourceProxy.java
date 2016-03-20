@@ -31,10 +31,21 @@ public interface RESTResourceProxy extends Serializable {
         @Context HttpHeaders httpHeaders
     );
     
+    @POST
+    @Path( "registerClient" )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response registerKey(); 
+    
     @GET
     @Path( "test-get-method" )
     @Produces( MediaType.APPLICATION_JSON )
     public Response testGetMethod(
+    	@Context HttpHeaders httpHeaders
+    );
+    
+    @GET
+    @Path( "authCheck")
+    public Response authCheck(
     	@Context HttpHeaders httpHeaders
     );
 }

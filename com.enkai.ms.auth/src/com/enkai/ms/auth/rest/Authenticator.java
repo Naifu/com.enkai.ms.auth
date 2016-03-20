@@ -21,12 +21,7 @@ public final class Authenticator {
     private final Map<String, String> clientKeysStorage = new HashMap<String, String>();
     private final Map<String, String> authorizationTokensStorage = new HashMap<String, String>();
 
-    private Authenticator() {
-    	
-    	// TODO Die Generierung und Verteilung der Client Keys muss noch realisiert werden. Aktuell ist ein Key für Gladiator hardcoded
-
-    	clientKeysStorage.put( "f80ebc87-ad5c-4b29-9366-5359768df5a1", "Gladiator" );
-    }
+    private Authenticator() {}
 
     /**
      * Singleton generieren
@@ -42,6 +37,15 @@ public final class Authenticator {
         }
 
         return authenticator;
+    }
+    
+    /**
+     * Registriert einen client Key
+     *
+     * @param	clientKey	Der neue Client Key
+     */
+    public void registerClient (String clientKey) {
+    	clientKeysStorage.put(clientKey, "");
     }
 
     /**
@@ -64,6 +68,7 @@ public final class Authenticator {
 	    		new LDAPService().login(username, password);
 	        	
 	    		String authToken = UUID.randomUUID().toString();
+	    		clientKeysStorage.put(clientKey, username);
 	        	authorizationTokensStorage.put( authToken, username );
 	        	return authToken;
 	        } else {
@@ -93,7 +98,9 @@ public final class Authenticator {
 
     	if ( isclientKeyValid( clientKey ) ) {
             if ( authorizationTokensStorage.containsKey( authToken ) ) {
-            	return true;
+            	if (clientKeysStorage.get(clientKey).equals(authorizationTokensStorage.get(authToken))) {
+            		return true;
+            	}
             }
         }
 
