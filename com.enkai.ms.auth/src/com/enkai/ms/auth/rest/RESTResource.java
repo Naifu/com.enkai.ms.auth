@@ -19,12 +19,22 @@ import javax.ws.rs.core.Response;
 
 import com.enkai.ms.auth.intf.HTTPHeaderNames;
 
+/**
+ * REST Call Handler
+ *  
+ * @author	Dirk
+ * @version 1.0
+ *
+ */
 @Stateless( name = "RESTResource", mappedName = "ejb/RESTResource" )
 @Path( "enkai-resource" )
 public class RESTResource implements RESTResourceProxy {
 
 	private static final long serialVersionUID = 8428236722685616669L;
 
+	/* (non-Javadoc)
+	 * @see com.enkai.ms.auth.rest.RESTResourceProxy#login(javax.ws.rs.core.HttpHeaders, java.lang.String, java.lang.String)
+	 */
 	@POST
     @Path( "login" )
     @Produces( MediaType.APPLICATION_JSON )
@@ -34,68 +44,40 @@ public class RESTResource implements RESTResourceProxy {
         @FormParam( "password" ) String password ) {
 
         Authenticator restAuthenticator = Authenticator.getInstance();
-        String serviceKey = httpHeaders.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
+        String clientKey = httpHeaders.getHeaderString( HTTPHeaderNames.CLIENT_KEY );
 
         try {
-            String authToken = restAuthenticator.login( serviceKey, username, password );
+            String authToken = restAuthenticator.login( clientKey, username, password );
             
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-            
-            if (authToken.equals("0")) {
-            	jsonObjBuilder.add( "message", "username or password invalid" );
-            	JsonObject jsonObj = jsonObjBuilder.build();
-                return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
-            } else if (authToken.equals("3")) {
-            	jsonObjBuilder.add( "message", "password expired" );
-            	JsonObject jsonObj = jsonObjBuilder.build();
-                return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
-            }
             
             jsonObjBuilder.add( "auth_token", authToken );
             JsonObject jsonObj = jsonObjBuilder.build();
             return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
             
         } catch ( final LoginException ex ) {
-            JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-            jsonObjBuilder.add( "message", "Problem matching service key, username and password" );
+        	
+        	JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+            jsonObjBuilder.add( "message", ex.getMessage() );
             JsonObject jsonObj = jsonObjBuilder.build();
 
             return getNoCacheResponseBuilder( Response.Status.UNAUTHORIZED ).entity( jsonObj.toString() ).build();
         }
     }
 
-    @GET
-    @Path( "demo-get-method" )
-    @Produces( MediaType.APPLICATION_JSON )
-    public Response demoGetMethod() {
-        JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-        jsonObjBuilder.add( "message", "Executed demoGetMethod" );
-        JsonObject jsonObj = jsonObjBuilder.build();
-
-        return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
-    }
-
-    @POST
-    @Path( "demo-post-method" )
-    @Produces( MediaType.APPLICATION_JSON )
-    public Response demoPostMethod() {
-        JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-        jsonObjBuilder.add( "message", "Executed demoPostMethod" );
-        JsonObject jsonObj = jsonObjBuilder.build();
-
-        return getNoCacheResponseBuilder( Response.Status.ACCEPTED ).entity( jsonObj.toString() ).build();
-    }
-
+    /* (non-Javadoc)
+     * @see com.enkai.ms.auth.rest.RESTResourceProxy#logout(javax.ws.rs.core.HttpHeaders)
+     */
     @POST
     @Path( "logout" )
     public Response logout(
         @Context HttpHeaders httpHeaders ) {
         try {
-            Authenticator demoAuthenticator = Authenticator.getInstance();
-            String serviceKey = httpHeaders.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
+            Authenticator authenticator = Authenticator.getInstance();
+            String clientKey = httpHeaders.getHeaderString( HTTPHeaderNames.CLIENT_KEY );
             String authToken = httpHeaders.getHeaderString( HTTPHeaderNames.AUTH_TOKEN );
 
-            demoAuthenticator.logout( serviceKey, authToken );
+            authenticator.logout( clientKey, authToken );
 
             return getNoCacheResponseBuilder( Response.Status.NO_CONTENT ).build();
         } catch ( final GeneralSecurityException ex ) {
@@ -103,6 +85,12 @@ public class RESTResource implements RESTResourceProxy {
         }
     }
 
+    /**
+     * Deaktiviert Cache Control für den Response Header
+     * 
+     * @param	status			Status der Response
+     * @return	ResponseBuilder	Reponse mit deaktiviertem Caching
+     */
     private Response.ResponseBuilder getNoCacheResponseBuilder( Response.Status status ) {
         CacheControl cc = new CacheControl();
         cc.setNoCache( true );
@@ -111,4 +99,16 @@ public class RESTResource implements RESTResourceProxy {
 
         return Response.status( status ).cacheControl( cc );
     }
+
+	@GET
+	@Path("test-get-method")
+	public Response testGetMethod(
+		@Context HttpHeaders httpHeaders) {
+		
+		JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+        jsonObjBuilder.add( "message", "okidoki läuft" );
+        JsonObject jsonObj = jsonObjBuilder.build();
+
+        return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
+	}
 }

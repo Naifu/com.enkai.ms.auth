@@ -25,19 +25,16 @@ public interface RESTResourceProxy extends Serializable {
         @FormParam( "username" ) String username,
         @FormParam( "password" ) String password );
 
-    @GET
-    @Path( "demo-get-method" )
-    @Produces( MediaType.APPLICATION_JSON )
-    public Response demoGetMethod();
-
-    @POST
-    @Path( "demo-post-method" )
-    @Produces( MediaType.APPLICATION_JSON )
-    public Response demoPostMethod();
-
     @POST
     @Path( "logout" )
     public Response logout(
         @Context HttpHeaders httpHeaders
+    );
+    
+    @GET
+    @Path( "test-get-method" )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response testGetMethod(
+    	@Context HttpHeaders httpHeaders
     );
 }

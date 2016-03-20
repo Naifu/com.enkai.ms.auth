@@ -9,17 +9,24 @@ import javax.ws.rs.ext.Provider;
 
 import com.enkai.ms.auth.intf.HTTPHeaderNames;
 
+/**
+ * Filter für alle REST Anfragen
+ * 
+ * @author	Dirk
+ * @version	1.0
+ *
+ */
 @Provider
 @PreMatching
 public class RESTRequestFilter implements ContainerRequestFilter {
 
-    //private final static Logger log = Logger.getLogger( RESTRequestFilter.class.getName() );
-
+    /* (non-Javadoc)
+     * @see javax.ws.rs.container.ContainerRequestFilter#filter(javax.ws.rs.container.ContainerRequestContext)
+     */
     @Override
     public void filter( ContainerRequestContext requestCtx ) throws IOException {
 
         String path = requestCtx.getUriInfo().getPath();
-//        log.info( "Filtering request path: " + path );
 
         // IMPORTANT!!! First, Acknowledge any pre-flight test from browsers for this case before validating the headers (CORS stuff)
         if ( requestCtx.getRequest().getMethod().equals( "OPTIONS" ) ) {
@@ -28,24 +35,21 @@ public class RESTRequestFilter implements ContainerRequestFilter {
             return;
         }
 
-        // Then check is the service key exists and is valid.
+        // Prüfen ob der Client Key bekannt ist
         Authenticator restAuthenticator = Authenticator.getInstance();
-        String serviceKey = requestCtx.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
+        String clientKey = requestCtx.getHeaderString( HTTPHeaderNames.CLIENT_KEY );
 
-        if ( !restAuthenticator.isServiceKeyValid( serviceKey ) ) {
-            // Kick anyone without a valid service key
-            requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
-
+        if ( !restAuthenticator.isclientKeyValid( clientKey ) ) {
+            requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() ); // Client Key unbekannt => Verbindung ablehnen
             return;
         }
 
-        // For any pther methods besides login, the authToken must be verified
+        // Für alle Anfragen ausser Loginversuche den Authorisierungs Token überprüfen
         if ( !path.startsWith( "enkai-resource/login/" ) ) {
             String authToken = requestCtx.getHeaderString( HTTPHeaderNames.AUTH_TOKEN );
 
-            // if it isn't valid, just kick them out.
-            if ( !restAuthenticator.isAuthTokenValid( serviceKey, authToken ) ) {
-                requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
+            if ( !restAuthenticator.isAuthTokenValid( clientKey, authToken ) ) {
+                requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() ); // Token unbekannt => Verbindung ablehnen
             }
         }
     }

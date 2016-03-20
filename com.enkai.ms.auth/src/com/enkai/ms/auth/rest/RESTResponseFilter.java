@@ -9,20 +9,22 @@ import javax.ws.rs.ext.Provider;
 
 import com.enkai.ms.auth.intf.HTTPHeaderNames;
 
+/**
+ * Filter für die REST Calls
+ * 
+ * @author	Dirk
+ * @version	1.0
+ */
 @Provider
 @PreMatching
 public class RESTResponseFilter implements ContainerResponseFilter {
 
-    //private final static Logger log = Logger.getLogger( DemoRESTResponseFilter.class.getName() );
-
     @Override
     public void filter( ContainerRequestContext requestCtx, ContainerResponseContext responseCtx ) throws IOException {
 
-      //  log.info( "Filtering REST Response" );
-
-        responseCtx.getHeaders().add( "Access-Control-Allow-Origin", "*" );    // You may further limit certain client IPs with Access-Control-Allow-Origin instead of '*'
+        responseCtx.getHeaders().add( "Access-Control-Allow-Origin", "*" );    // Hier könnte auf bestimmte IP Nummern gefiltert werden, statt generell '*'
         responseCtx.getHeaders().add( "Access-Control-Allow-Credentials", "true" );
-        responseCtx.getHeaders().add( "Access-Control-Allow-Methods", "GET, POST, DELETE, PUT" );
-        responseCtx.getHeaders().add( "Access-Control-Allow-Headers", HTTPHeaderNames.SERVICE_KEY + ", " + HTTPHeaderNames.AUTH_TOKEN );
+        responseCtx.getHeaders().add( "Access-Control-Allow-Methods", "GET, POST, DELETE, PUT" ); // Methoden die erlaubt werden (POST für Login notwendig)
+        responseCtx.getHeaders().add( "Access-Control-Allow-Headers", HTTPHeaderNames.CLIENT_KEY + ", " + HTTPHeaderNames.AUTH_TOKEN ); // Client Key und Token werden als Header Werte erlaubt
     }
 }
