@@ -21,7 +21,25 @@ import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
  */
 
 public class LDAPService {
+	
+	 private static LDAPService ldapService = null;
 
+	/**
+     * Singleton generieren
+     * 
+     * @author	Dirk
+     * @Version	1.0
+     * @return	LDAPService	Objekt
+     */
+    public static LDAPService getInstance() {
+    	
+        if ( ldapService == null ) {
+        	ldapService = new LDAPService();
+        }
+
+        return ldapService;
+    }
+	
 	/**
 	 * Prüft die Authentifizierung eines Benutzers gegenüber dem LDAP
 	 * 
